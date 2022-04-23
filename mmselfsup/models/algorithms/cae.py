@@ -2,6 +2,7 @@
 from typing import Sequence
 
 import torch
+from torch import nn
 from torchvision.transforms import Normalize
 
 from ..builder import ALGORITHMS, build_backbone, build_head, build_neck
@@ -50,6 +51,7 @@ class CAE(BaseModel):
 
     def init_weights(self) -> None:
         super().init_weights()
+        self.apply(self._init_weights)
         self._init_teacher()
 
     def _init_teacher(self) -> None:
@@ -59,6 +61,15 @@ class CAE(BaseModel):
             param_teacher.detach()
             param_teacher.data.copy_(param_backbone.data)
             param_teacher.requires_grad = False
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
 
     def momentum_update(self) -> None:
         """Momentum update of the teacher network."""
