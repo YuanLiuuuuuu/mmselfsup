@@ -44,8 +44,8 @@ data = dict(
         data_source=dict(
             type=data_source,
             data_prefix='data/imagenet/val',
-            ann_file='data/imagenet/meta/val.txt'),
+            ann_file='data/imagenet/meta/val.txt',
+            file_client_args=file_client_args),
         pipeline=test_pipeline,
-        prefetch=prefetch,
-        file_client_args=file_client_args))
+        prefetch=prefetch))
 evaluation = dict(interval=10, topk=(1, 5))
