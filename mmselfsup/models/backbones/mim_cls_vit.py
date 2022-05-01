@@ -124,15 +124,20 @@ class MIMVisionTransformer(VisionTransformer):
         x = x + self.pos_embed
         x = self.drop_after_pos(x)
 
+        outcomes = []
         for i, layer in enumerate(self.layers):
             x = layer(x)
 
-            if i == len(self.layers) - 1 and self.final_norm:
-                x = self.norm1(x)
+            if i in self.out_indices:
+                if self.final_norm:
+                    x = self.norm1(x)
+                    outcomes.append(x)
 
         if not self.final_norm:
-            x = x[:, 1:, :].mean(dim=1)
-            outcome = self.fc_norm(x)
+            for i, x in enumerate(outcomes):
+                x = x[:, 1:, :].mean(dim=1)
+                outcomes[i] = self.fc_norm(x)
         else:
-            outcome = x[:, 0]
-        return outcome
+            for i, x in enumerate(outcomes):
+                outcomes[i] = x[:, 0]
+        return outcomes[-1]
