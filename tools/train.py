@@ -179,10 +179,10 @@ def main():
     model = build_algorithm(cfg.model)
     model.init_weights()
 
-    state_dict = torch.load(
-        '/mnt/cache/liuyuan1.vendor/mae/mae_init_mmcls.pth',
-        map_location=torch.device('cpu'))['state_dict']
-    model.load_state_dict(state_dict, strict=True)
+    # state_dict = torch.load(
+    #     '/mnt/cache/liuyuan1.vendor/mae/mae_init_mmcls.pth',
+    #     map_location=torch.device('cpu'))['state_dict']
+    # model.load_state_dict(state_dict, strict=True)
 
     datasets = [build_dataset(cfg.data.train)]
     assert len(cfg.workflow) == 1, 'Validation is called by hook.'
