@@ -122,7 +122,6 @@ class SimMIMSwinTransformer(SwinTransformer):
 
         assert mask is not None
         B, L, _ = x.shape
-
         mask_token = self.mask_token.expand(B, L, -1)
         w = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
         x = x * (1. - w) + mask_token * w
