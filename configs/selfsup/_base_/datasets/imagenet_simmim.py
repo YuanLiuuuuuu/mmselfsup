@@ -27,15 +27,20 @@ train_pipeline.append(
         mask_ratio=0.6))
 
 # dataset summary
+file_client_args = dict(
+    backend='memcached',
+    server_list_cfg='/mnt/lustre/share/memcached_client/pcs_server_list.conf',
+    client_cfg='/mnt/lustre/share_data/zhangwenwei/software/pymc/mc.conf',
+    sys_path='/mnt/lustre/share_data/zhangwenwei/software/pymc')
 data = dict(
     samples_per_gpu=256,
-    workers_per_gpu=8,
+    workers_per_gpu=16,
     train=dict(
         type=dataset_type,
         data_source=dict(
             type=data_source,
             data_prefix='data/imagenet/train',
             ann_file='data/imagenet/meta/train.txt',
-        ),
+            file_client_args=file_client_args),
         pipeline=train_pipeline,
         prefetch=prefetch))
