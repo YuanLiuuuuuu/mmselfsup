@@ -4,6 +4,7 @@ import re
 import torch.distributed as dist
 from mmcv.runner.optimizer.builder import OPTIMIZER_BUILDERS, OPTIMIZERS
 from mmcv.utils import build_from_cfg, print_log
+from mmseg.core.optimizers.layer_decay_optimizer_constructor import get_layer_id_for_convnext
 
 
 @OPTIMIZER_BUILDERS.register_module()
@@ -64,6 +65,9 @@ class TransformerFinetuneConstructor:
             elif self.model_type == 'vit':
                 self._generate_vit_layer_wise_lr_decay(model,
                                                        paramwise_options)
+            elif self.model_type == 'convnext':
+                self._generate_convnext_layer_wise_lr_decay(
+                    model, paramwise_options)
             else:
                 raise NotImplementedError(f'Currently, we do not support \
                     layer-wise lr decay for {self.model_type}')
@@ -127,6 +131,17 @@ class TransformerFinetuneConstructor:
             return layer_id + 1
         else:
             return num_layers - 1
+
+    def _generate_convnext_layer_wise_lr_decay(self, model, paramwise_options):
+        """Generate layer-wise learning rate decay for Swin Transformer."""
+        num_layers = 12 + 2
+        layer_scales = list(self.layer_decay**(12 + 1 - i)
+                            for i in range(num_layers))
+
+        for name, _ in model.named_parameters():
+
+            layer_id = get_layer_id_for_convnext(name, 12)
+            paramwise_options[name] = dict(lr_mult=layer_scales[layer_id])
 
     def _generate_vit_layer_wise_lr_decay(self, model, paramwise_options):
         """Generate layer-wise learning rate decay for Vision Transformer."""
