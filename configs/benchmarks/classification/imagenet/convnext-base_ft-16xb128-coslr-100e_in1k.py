@@ -27,7 +27,7 @@ test_pipeline = [
     dict(type='Normalize', **img_norm_cfg)
 ]
 data = dict(
-    samples_per_gpu=256,
+    samples_per_gpu=128,
     drop_last=False,
     workers_per_gpu=16,
     train=dict(pipeline=train_pipeline),
