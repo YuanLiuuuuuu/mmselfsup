@@ -12,6 +12,7 @@ class SimMIMConvNext(ConvNeXt):
     def __init__(self,
                  arch='tiny',
                  in_channels=3,
+                 kernel_size=7,
                  stem_patch_size=4,
                  norm_cfg=dict(type='LN2d', eps=1e-6),
                  act_cfg=dict(type='GELU'),
@@ -22,8 +23,8 @@ class SimMIMConvNext(ConvNeXt):
                  frozen_stages=0,
                  gap_before_final_norm=True,
                  init_cfg=None):
-        super().__init__(arch, in_channels, stem_patch_size, norm_cfg, act_cfg,
-                         linear_pw_conv, drop_path_rate,
+        super().__init__(arch, in_channels, kernel_size, stem_patch_size,
+                         norm_cfg, act_cfg, linear_pw_conv, drop_path_rate,
                          layer_scale_init_value, out_indices, frozen_stages,
                          gap_before_final_norm, init_cfg)
 
