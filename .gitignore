@@ -133,3 +133,4 @@ src/
 docs/en/_build
 
 pretrain
+work_dirs
