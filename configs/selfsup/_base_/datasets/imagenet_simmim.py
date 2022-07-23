@@ -2,7 +2,16 @@
 custom_imports = dict(imports='mmcls.datasets', allow_failed_imports=False)
 dataset_type = 'mmcls.ImageNet'
 data_root = 'data/imagenet/'
-file_client_args = dict(backend='disk')
+# file_client_args = dict(backend='disk')
+file_client_args = dict(
+    backend='petrel',
+    # 因为petreloss.conf设置sproject为默认，此处可省略前缀
+    path_mapping=dict({
+        './data/imagenet':
+        's3://openmmlab/datasets/classification/imagenet',
+        'data/imagenet':
+        's3://openmmlab/datasets/classification/imagenet'
+    }))
 
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
