@@ -60,6 +60,49 @@ def get_layer_id_for_swin(var_name: str, max_layer_id: int,
         return max_layer_id - 1
 
 
+def get_layer_id_for_convnext(var_name: str, max_layer_id: int) -> int:
+    """Get the layer id to set the different learning rates in ``layer_wise``
+    decay_type.
+
+    Args:
+        var_name (str): The key of the model.
+        max_layer_id (int): Maximum number of backbone layers.
+
+    Returns:
+        int: The id number corresponding to different learning rate in
+        ``LearningRateDecayOptimizerConstructor``.
+    """
+
+    if var_name in ('backbone.cls_token', 'backbone.mask_token',
+                    'backbone.pos_embed'):
+        return 0
+    elif var_name.startswith('backbone.downsample_layers'):
+        stage_id = int(var_name.split('.')[2])
+        if stage_id == 0:
+            layer_id = 0
+        elif stage_id == 1:
+            layer_id = 2
+        elif stage_id == 2:
+            layer_id = 3
+        elif stage_id == 3:
+            layer_id = max_layer_id - 2
+        return layer_id
+    elif var_name.startswith('backbone.stages'):
+        stage_id = int(var_name.split('.')[2])
+        block_id = int(var_name.split('.')[3])
+        if stage_id == 0:
+            layer_id = 1
+        elif stage_id == 1:
+            layer_id = 2
+        elif stage_id == 2:
+            layer_id = 3 + block_id // 3
+        elif stage_id == 3:
+            layer_id = max_layer_id - 2
+        return layer_id
+    else:
+        return max_layer_id - 1
+
+
 @OPTIM_WRAPPER_CONSTRUCTORS.register_module()
 class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
     """Different learning rates are set for different layers of backbone.
@@ -96,14 +139,17 @@ class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
             decay, model_type should not be None.'
 
         # currently, we only support layer-wise learning rate decay for vit
-        # and swin.
-        assert model_type in ['vit', 'swin'], f'Currently, we do not support \
+        # swin, and convnext.
+        assert model_type in ['vit', 'swin',
+                              'convnext'], f'Currently, we do not support \
             layer-wise learning rate decay for {model_type}'
 
         if model_type == 'vit':
             num_layers = len(module.backbone.layers) + 2
         elif model_type == 'swin':
             num_layers = sum(module.backbone.depths) + 2
+        elif model_type == 'convnext':
+            num_layers = sum(module.backbone.depths) // 3 + 2
 
         weight_decay = self.base_wd
         # if layer_decay_rate is not provided, not decay
@@ -127,6 +173,8 @@ class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
             elif model_type == 'swin':
                 layer_id = get_layer_id_for_swin(name, num_layers,
                                                  module.backbone.depths)
+            elif model_type == 'convnext':
+                layer_id = get_layer_id_for_convnext(name, num_layers)
 
             group_name = f'layer_{layer_id}_{group_name}'
             if group_name not in parameter_groups:

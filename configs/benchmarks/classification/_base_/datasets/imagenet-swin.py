@@ -7,7 +7,16 @@ preprocess_cfg = dict(
     # convert image from BGR to RGB
     to_rgb=True,
 )
-file_client_args = dict(backend='disk')
+# file_client_args = dict(backend='disk')
+file_client_args = dict(
+    backend='petrel',
+    # 因为petreloss.conf设置sproject为默认，此处可省略前缀
+    path_mapping=dict({
+        './data/imagenet':
+        's3://openmmlab/datasets/classification/imagenet',
+        'data/imagenet':
+        's3://openmmlab/datasets/classification/imagenet'
+    }))
 
 bgr_mean = preprocess_cfg['mean'][::-1]
 bgr_std = preprocess_cfg['std'][::-1]
