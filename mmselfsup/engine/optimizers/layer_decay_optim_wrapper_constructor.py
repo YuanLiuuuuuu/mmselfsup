@@ -103,6 +103,31 @@ def get_layer_id_for_convnext(var_name: str, max_layer_id: int) -> int:
         return max_layer_id - 1
 
 
+def get_layer_id_for_resnet(var_name: str, max_layer_id: int) -> int:
+    """Get the layer id to set the different learning rates in ``layer_wise``
+    decay_type.
+
+    Args:
+        var_name (str): The key of the model.
+        max_layer_id (int): Maximum number of backbone layers.
+
+    Returns:
+        int: The id number corresponding to different learning rate in
+        ``LearningRateDecayOptimizerConstructor``.
+    """
+    stage_layers = [3, 4, 6, 3]
+    if var_name.startswith('backbone.conv1') or var_name.startswith(
+            'backbone.bn1'):
+        return 0
+    elif var_name.startswith('backbone.layer'):
+        stage_id = int(var_name.split('.')[1][-1])
+        block_id = int(var_name.split('.')[2])
+        layer_id = sum(stage_layers[:stage_id - 1]) + block_id + 1
+        return layer_id
+    else:
+        return max_layer_id - 1
+
+
 @OPTIM_WRAPPER_CONSTRUCTORS.register_module()
 class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
     """Different learning rates are set for different layers of backbone.
@@ -140,8 +165,8 @@ class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
 
         # currently, we only support layer-wise learning rate decay for vit
         # swin, and convnext.
-        assert model_type in ['vit', 'swin',
-                              'convnext'], f'Currently, we do not support \
+        assert model_type in ['vit', 'swin', 'convnext',
+                              'resnet'], f'Currently, we do not support \
             layer-wise learning rate decay for {model_type}'
 
         if model_type == 'vit':
@@ -150,6 +175,8 @@ class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
             num_layers = sum(module.backbone.depths) + 2
         elif model_type == 'convnext':
             num_layers = sum(module.backbone.depths) // 3 + 2
+        elif model_type == 'resnet':
+            num_layers = 16 + 2
 
         weight_decay = self.base_wd
         # if layer_decay_rate is not provided, not decay
@@ -175,6 +202,8 @@ class LearningRateDecayOptimWrapperConstructor(DefaultOptimWrapperConstructor):
                                                  module.backbone.depths)
             elif model_type == 'convnext':
                 layer_id = get_layer_id_for_convnext(name, num_layers)
+            elif model_type == 'resnet':
+                layer_id = get_layer_id_for_resnet(name, num_layers)
 
             group_name = f'layer_{layer_id}_{group_name}'
             if group_name not in parameter_groups:

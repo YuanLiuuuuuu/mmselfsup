@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 from mmcls.models import ResNet
 from torch import nn
 import torch
@@ -63,10 +63,11 @@ class SimMIMResNet(ResNet):
             drop_path_rate=drop_path_rate)
 
         self._make_stem_layer(in_channels, stem_channels)
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, self.stem_channels))
         self.mask = mask
-
-        trunc_normal_(self.mask_token, mean=0, std=.02)
+        if self.mask:
+            self.mask_token = nn.Parameter(
+                torch.zeros(1, 1, self.stem_channels))
+            trunc_normal_(self.mask_token, mean=0, std=.02)
 
     def _make_stem_layer(self, in_channels, stem_channels):
 
@@ -81,8 +82,9 @@ class SimMIMResNet(ResNet):
         self.add_module(self.norm1_name, norm1)
         self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x: torch.Tensor,
-                mask: torch.Tensor) -> Tuple[torch.Tensor]:
+    def forward(self,
+                x: torch.Tensor,
+                mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor]:
         # Used to patchify image into non-overlapped tokens
         x = self.conv1(x)
         x = self.norm1(x)
