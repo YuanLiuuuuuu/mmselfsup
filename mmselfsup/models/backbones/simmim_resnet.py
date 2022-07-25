@@ -25,6 +25,7 @@ class SimMIMResNet(ResNet):
                  deep_stem=False,
                  avg_down=False,
                  frozen_stages=-1,
+                 mask=True,
                  conv_cfg=None,
                  norm_cfg=dict(type='BN', requires_grad=True),
                  norm_eval=False,
@@ -63,6 +64,7 @@ class SimMIMResNet(ResNet):
 
         self._make_stem_layer(in_channels, stem_channels)
         self.mask_token = nn.Parameter(torch.zeros(1, 1, self.stem_channels))
+        self.mask = mask
 
         trunc_normal_(self.mask_token, mean=0, std=.02)
 
@@ -85,18 +87,20 @@ class SimMIMResNet(ResNet):
         x = self.conv1(x)
         x = self.norm1(x)
         x: torch.Tensor = self.relu(x)
-        # now x is the patchfied image
-        B, C, H, W = x.shape
-        x = x.permute(0, 2, 3, 1).contiguous().view(B, -1, C)
+        # if mask is True, apply mask on input images
+        if self.mask:
+            # now x is the patchfied image
+            B, C, H, W = x.shape
+            x = x.permute(0, 2, 3, 1).contiguous().view(B, -1, C)
 
-        assert mask is not None
-        B, L, _ = x.shape
-        mask_token = self.mask_token.expand(B, L, -1)
-        w = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
-        x = x * (1. - w) + mask_token * w
+            assert mask is not None
+            B, L, _ = x.shape
+            mask_token = self.mask_token.expand(B, L, -1)
+            w = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
+            x = x * (1. - w) + mask_token * w
 
-        # x is the masked image
-        x = x.view(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
+            # x is the masked image
+            x = x.view(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
         outs = []
         for i, layer_name in enumerate(self.res_layers):
