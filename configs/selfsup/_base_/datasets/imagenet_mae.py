@@ -1,7 +1,14 @@
 # dataset settings
 dataset_type = 'mmcls.ImageNet'
-data_root = 'data/imagenet/'
-file_client_args = dict(backend='disk')
+data_root = 'data/WebiNat5000/'
+# file_client_args = dict(backend='disk')
+file_client_args = dict(
+    backend='memcached',
+    server_list_cfg='/mnt/lustre/share/pymc/pcs_server_list.conf',
+    client_cfg='/mnt/lustre/share/pymc/mc.conf',
+    sys_path='/mnt/lustre/share/pymc',
+)
+
 
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
@@ -21,9 +28,10 @@ train_dataloader = dict(
     persistent_workers=True,
     sampler=dict(type='DefaultSampler', shuffle=True),
     collate_fn=dict(type='default_collate'),
+    pin_memory=True,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='meta/train.txt',
+        ann_file='/mnt/cache/liuyuan/research/draw/webinat/meta/train.txt',
         data_prefix=dict(img_path='train/'),
         pipeline=train_pipeline))

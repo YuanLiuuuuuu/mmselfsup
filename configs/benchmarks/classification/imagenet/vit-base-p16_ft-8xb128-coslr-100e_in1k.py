@@ -22,7 +22,7 @@ model = dict(
     neck=None,
     head=dict(
         type='LinearClsHead',
-        num_classes=1000,
+        num_classes=5000,
         in_channels=768,
         loss=dict(
             type='LabelSmoothLoss', label_smooth_val=0.1, mode='original'),
@@ -32,7 +32,13 @@ model = dict(
         dict(type='CutMix', alpha=1.0)
     ]))
 
-file_client_args = dict(backend='disk')
+# file_client_args = dict(backend='disk')
+file_client_args = dict(
+    backend='memcached',
+    server_list_cfg='/mnt/lustre/share/pymc/pcs_server_list.conf',
+    client_cfg='/mnt/lustre/share/pymc/mc.conf',
+    sys_path='/mnt/lustre/share/pymc',
+)
 
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
@@ -72,8 +78,17 @@ test_pipeline = [
     dict(type='PackClsInputs')
 ]
 
-train_dataloader = dict(batch_size=128, dataset=dict(pipeline=train_pipeline))
-val_dataloader = dict(batch_size=128, dataset=dict(pipeline=test_pipeline))
+data_root = 'data/WebiNat5000/'
+train_ann_file = '/mnt/cache/liuyuan/research/draw/webinat/meta/train.txt'
+val_ann_file = '/mnt/cache/liuyuan/research/draw/webinat/meta/val.txt'
+train_dataloader = dict(
+    batch_size=128,
+    dataset=dict(
+        pipeline=train_pipeline, data_root=data_root, ann_file=train_ann_file))
+val_dataloader = dict(
+    batch_size=128,
+    dataset=dict(
+        pipeline=test_pipeline, data_root=data_root, ann_file=val_ann_file, data_prefix='train'))
 test_dataloader = val_dataloader
 
 # optimizer wrapper

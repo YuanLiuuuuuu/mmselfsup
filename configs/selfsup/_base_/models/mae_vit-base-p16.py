@@ -21,7 +21,9 @@ model = dict(
         norm_pix=True,
         patch_size=16,
         loss=dict(type='MAEReconstructionLoss')),
-    init_cfg=[
-        dict(type='Xavier', distribution='uniform', layer='Linear'),
-        dict(type='Constant', layer='LayerNorm', val=1.0, bias=0.0)
-    ])
+    # init_cfg=[
+    #     dict(type='Xavier', distribution='uniform', layer='Linear'),
+    #     dict(type='Constant', layer='LayerNorm', val=1.0, bias=0.0)
+    # ])
+    init_cfg=dict(type='Pretrained')
+)
