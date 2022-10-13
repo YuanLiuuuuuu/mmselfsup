@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from .cae_vit import CAEViT
+from .convmae_vit import ConvMAEViT
 from .mae_vit import MAEViT
 from .mocov3_vit import MoCoV3ViT
 from .resnet import ResNet, ResNetSobel, ResNetV1d
@@ -8,5 +9,5 @@ from .simmim_swin import SimMIMSwinTransformer
 
 __all__ = [
     'ResNet', 'ResNetSobel', 'ResNetV1d', 'ResNeXt', 'MAEViT', 'MoCoV3ViT',
-    'SimMIMSwinTransformer', 'CAEViT'
+    'SimMIMSwinTransformer', 'CAEViT', 'ConvMAEViT'
 ]
