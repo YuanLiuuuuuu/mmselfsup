@@ -79,7 +79,7 @@ test_pipeline = [
 ]
 
 data_root = 'data/WebiNat5000/'
-train_ann_file = '/mnt/cache/liuyuan/research/draw/webinat/meta/train.txt'
+train_ann_file = '/mnt/cache/liuyuan/research/accv/filter_data/all_new.txt'
 val_ann_file = '/mnt/cache/liuyuan/research/draw/webinat/meta/val.txt'
 train_dataloader = dict(
     batch_size=128,
