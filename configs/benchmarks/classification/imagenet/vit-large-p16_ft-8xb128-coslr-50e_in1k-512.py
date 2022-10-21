@@ -1,7 +1,9 @@
+_base_ = 'vit-large-p16_ft-8xb128-coslr-50e_in1k-448.py'
+
 _base_ = 'vit-large-p16_ft-8xb128-coslr-50e_in1k.py'
 
 # model settings
-model = dict(backbone=dict(img_size=448))
+model = dict(backbone=dict(img_size=512))
 
 # pipeline settings
 # file_client_args = dict(backend='disk')
@@ -15,7 +17,7 @@ train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(
         type='RandomResizedCrop',
-        scale=448,
+        scale=512,
         backend='pillow',
         interpolation='bicubic'),
     dict(type='RandomFlip', prob=0.5, direction='horizontal'),
@@ -42,11 +44,11 @@ val_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(
         type='ResizeEdge',
-        scale=512,
+        scale=585,
         edge='short',
         backend='pillow',
         interpolation='bicubic'),
-    dict(type='CenterCrop', crop_size=448),
+    dict(type='CenterCrop', crop_size=512),
     dict(type='PackClsInputs')
 ]
 
@@ -55,4 +57,4 @@ val_dataloader = dict(dataset=dict(pipeline=val_pipeline))
 test_dataloader = val_dataloader
 
 # optimizer
-optim_wrapper = dict(optimizer=dict(lr=0.002))
+optim_wrapper = dict(optimizer=dict(lr=0.001))
