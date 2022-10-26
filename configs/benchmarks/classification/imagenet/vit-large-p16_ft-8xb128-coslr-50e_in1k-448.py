@@ -11,6 +11,14 @@ file_client_args = dict(
     client_cfg='/mnt/lustre/share/pymc/mc.conf',
     sys_path='/mnt/lustre/share/pymc',
 )
+# file_client_args = dict(
+#     backend='petrel',
+#     path_mapping=dict({
+#         './data/WebiNat5000':
+#         's3://openmmlab/datasets/classification/WebiNat5000/',
+#         'data/WebiNat5000':
+#         's3://openmmlab/datasets/classification/WebiNat5000/'
+#     }))
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(

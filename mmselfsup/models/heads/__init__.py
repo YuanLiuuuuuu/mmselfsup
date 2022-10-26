@@ -9,9 +9,11 @@ from .mocov3_head import MoCoV3Head
 from .multi_cls_head import MultiClsHead
 from .simmim_head import SimMIMHead
 from .swav_head import SwAVHead
+from .arcface_head import ArcFaceClsHeadAdaptiveMargin
 
 __all__ = [
     'ContrastiveHead', 'ClsHead', 'LatentPredictHead',
     'LatentCrossCorrelationHead', 'MultiClsHead', 'MAEPretrainHead',
-    'MoCoV3Head', 'SimMIMHead', 'CAEHead', 'SwAVHead', 'MaskFeatPretrainHead'
+    'MoCoV3Head', 'SimMIMHead', 'CAEHead', 'SwAVHead',
+    'ArcFaceClsHeadAdaptiveMargin', 'MaskFeatPretrainHead'
 ]

@@ -33,12 +33,20 @@ model = dict(
     ]))
 
 # file_client_args = dict(backend='disk')
+# file_client_args = dict(
+#     backend='memcached',
+#     server_list_cfg='/mnt/lustre/share/pymc/pcs_server_list.conf',
+#     client_cfg='/mnt/lustre/share/pymc/mc.conf',
+#     sys_path='/mnt/lustre/share/pymc',
+# )
 file_client_args = dict(
-    backend='memcached',
-    server_list_cfg='/mnt/lustre/share/pymc/pcs_server_list.conf',
-    client_cfg='/mnt/lustre/share/pymc/mc.conf',
-    sys_path='/mnt/lustre/share/pymc',
-)
+    backend='petrel',
+    path_mapping=dict({
+        './data/WebiNat5000':
+        's3://openmmlab/datasets/classification/WebiNat5000/',
+        'data/WebiNat5000':
+        's3://openmmlab/datasets/classification/WebiNat5000/'
+    }))
 
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
@@ -88,7 +96,10 @@ train_dataloader = dict(
 val_dataloader = dict(
     batch_size=128,
     dataset=dict(
-        pipeline=test_pipeline, data_root=data_root, ann_file=val_ann_file, data_prefix='train'))
+        pipeline=test_pipeline,
+        data_root=data_root,
+        ann_file=val_ann_file,
+        data_prefix='train'))
 test_dataloader = val_dataloader
 
 # optimizer wrapper
