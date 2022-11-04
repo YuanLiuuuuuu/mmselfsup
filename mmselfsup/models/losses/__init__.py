@@ -6,9 +6,10 @@ from .mae_loss import MAEReconstructionLoss
 from .reconstruction_loss import PixelReconstructionLoss
 from .simmim_loss import SimMIMReconstructionLoss
 from .swav_loss import SwAVLoss
+from .eql_loss import SoftmaxEQLLoss
 
 __all__ = [
     'CAELoss', 'CrossCorrelationLoss', 'CosineSimilarityLoss',
     'MAEReconstructionLoss', 'SimMIMReconstructionLoss', 'SwAVLoss',
-    'PixelReconstructionLoss'
+    'PixelReconstructionLoss', 'SoftmaxEQLLoss'
 ]
