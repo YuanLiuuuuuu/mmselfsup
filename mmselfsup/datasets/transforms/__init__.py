@@ -7,7 +7,8 @@ from .processing import (BEiTMaskGenerator, ColorJitter, RandomCrop,
                          RandomRotation, RandomSolarize, RotationWithLabels,
                          SimMIMMaskGenerator)
 from .pytorch_transform import (PytorchCenterCrop, PytorchRandomResizedCrop,
-                                PytorchRandomHorizontalFlip, PytorchResize)
+                                PytorchRandomHorizontalFlip, PytorchResize,
+                                PytorchRandomResizedCropV2)
 from .wrappers import MultiView
 
 __all__ = [
@@ -17,5 +18,5 @@ __all__ = [
     'MultiView', 'RotationWithLabels', 'RandomPatchWithLabels',
     'RandomRotation', 'RandomResizedCrop', 'RandomCrop',
     'PytorchRandomResizedCrop', 'PytorchRandomHorizontalFlip', 'PytorchResize',
-    'PytorchCenterCrop'
+    'PytorchCenterCrop', 'PytorchRandomResizedCropV2'
 ]

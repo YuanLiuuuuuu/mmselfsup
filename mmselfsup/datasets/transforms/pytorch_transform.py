@@ -109,3 +109,25 @@ class PytorchCenterCrop(BaseTransform):
         results['img_shape'] = img_array.shape[:2]
 
         return results
+
+
+@TRANSFORMS.register_module()
+class PytorchRandomResizedCropV2(BaseTransform):
+
+    def __init__(self,
+                 size,
+                 scale=(0.08, 1.0),
+                 ratio=(3.0 / 4.0, 4.0 / 3.0),
+                 interpolation=3) -> None:
+        self.resize_crop = transforms.RandomResizedCrop(
+            size=size, scale=scale, ratio=ratio, interpolation=interpolation)
+
+    def transform(self, results: dict) -> dict:
+        img = results['img']
+        img_pil = Image.fromarray(img)
+        img_pil = self.resize_crop(img_pil)
+        img_array = np.array(img_pil)
+        results['img'] = img_array
+        results['img_shape'] = img_array.shape[:2]
+
+        return results
