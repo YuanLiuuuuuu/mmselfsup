@@ -8,6 +8,7 @@ from .deepcluster import DeepCluster
 from .densecl import DenseCL
 from .eva import EVA
 from .mae import MAE
+from .mae_plus import MAEPlus
 from .maskfeat import MaskFeat
 from .milan import MILAN
 from .mixmim import MixMIM
@@ -26,5 +27,9 @@ __all__ = [
     'BaseModel', 'BarlowTwins', 'BEiT', 'BYOL', 'DeepCluster', 'DenseCL',
     'MoCo', 'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimSiam',
     'SwAV', 'MAE', 'MoCoV3', 'SimMIM', 'CAE', 'MaskFeat', 'MILAN', 'EVA',
+<<<<<<< HEAD
     'MixMIM'
+=======
+    'MAEPlus'
+>>>>>>> 72ccc56 ([Feature]: MAE plus)
 ]

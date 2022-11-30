@@ -13,9 +13,8 @@ from .multi_prototypes import MultiPrototypes
 from .position_embedding import build_2d_sincos_position_embedding
 from .sobel import Sobel
 from .transformer_blocks import (CAETransformerRegressorLayer,
-                                 MultiheadAttention,
-                                 PromptTransformerEncoderLayer,
-                                 TransformerEncoderLayer)
+                                 MultiheadAttention, TransformerEncoderLayer)
+
 from .vector_quantizer import NormEMAVectorQuantizer
 
 try:
@@ -24,11 +23,24 @@ except ImportError:
     ResLayerExtraNorm = None
 
 __all__ = [
-    'Extractor', 'GatherLayer', 'MultiPooling', 'MultiPrototypes',
-    'build_2d_sincos_position_embedding', 'Sobel', 'MultiheadAttention',
-    'TransformerEncoderLayer', 'CAETransformerRegressorLayer', 'CosineEMA',
-    'SelfSupDataPreprocessor', 'RelativeLocDataPreprocessor',
-    'RotationPredDataPreprocessor', 'CAEDataPreprocessor', 'ResLayerExtraNorm',
-    'NormEMAVectorQuantizer', 'TwoNormDataPreprocessor', 'build_clip_model',
-    'PromptTransformerEncoderLayer', 'VideoDataPreprocessor'
+    'Extractor',
+    'GatherLayer',
+    'MultiPooling',
+    'MultiPrototypes',
+    'build_2d_sincos_position_embedding',
+    'Sobel',
+    'MultiheadAttention',
+    'TransformerEncoderLayer',
+    'CAETransformerRegressorLayer',
+    'CosineEMA',
+    'SelfSupDataPreprocessor',
+    'RelativeLocDataPreprocessor',
+    'RotationPredDataPreprocessor',
+    'CAEDataPreprocessor',
+    'ResLayerExtraNorm',
+    'NormEMAVectorQuantizer',
+    'TwoNormDataPreprocessor',
+    'build_clip_model',
+    'PromptTransformerEncoderLayer',
+    'VideoDataPreprocessor',
 ]
