@@ -22,7 +22,6 @@ from .simclr import SimCLR
 from .simmim import SimMIM
 from .simsiam import SimSiam
 from .swav import SwAV
-from .milan import MILAN
 
 __all__ = [
     'BaseModel', 'BarlowTwins', 'BEiT', 'BYOL', 'DeepCluster', 'DenseCL',
