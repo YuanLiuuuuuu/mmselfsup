@@ -13,6 +13,7 @@ from .mocov3_head import MoCoV3Head
 from .multi_cls_head import MultiClsHead
 from .simmim_head import SimMIMHead
 from .swav_head import SwAVHead
+from .milan_head import MILANPretrainHead
 
 __all__ = [
     'BEiTV1Head', 'BEiTV2Head', 'ContrastiveHead', 'ClsHead',
