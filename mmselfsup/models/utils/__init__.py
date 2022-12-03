@@ -13,7 +13,9 @@ from .multi_prototypes import MultiPrototypes
 from .position_embedding import build_2d_sincos_position_embedding
 from .sobel import Sobel
 from .transformer_blocks import (CAETransformerRegressorLayer,
-                                 MultiheadAttention, TransformerEncoderLayer)
+                                 MultiheadAttention, TransformerEncoderLayer,
+                                 PromptTransformerEncoderLayer)
+from .clip import build_clip_model
 
 from .vector_quantizer import NormEMAVectorQuantizer
 
