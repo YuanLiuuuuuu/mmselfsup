@@ -24,3 +24,6 @@ model = dict(
     target_generator=dict(
         type='LowFreqTargetGenerator', radius=40, img_size=224),
 )
+
+# randomness
+randomness = dict(seed=2, diff_rank_seed=True)

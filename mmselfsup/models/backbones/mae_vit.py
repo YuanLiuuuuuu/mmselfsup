@@ -78,6 +78,16 @@ class MAEViT(VisionTransformer):
         self.pos_embed.requires_grad = False
         self.mask_ratio = mask_ratio
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
+        self.out_indices = out_indices if isinstance(out_indices, Sequence) \
+            else [out_indices]
+        # convert each index to positive value
+        self.out_indices = [(self.num_layers + idx) % self.num_layers
+                            for idx in self.out_indices]
+        proj_layers = [
+            torch.nn.Linear(self.embed_dims, self.embed_dims)
+            for _ in range(len(self.out_indices) - 1)
+        ]
+        self.proj_layers = torch.nn.ModuleList(proj_layers)
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -170,9 +180,16 @@ class MAEViT(VisionTransformer):
         cls_tokens = cls_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
 
-        for _, layer in enumerate(self.layers):
+        res = []
+        for i, layer in enumerate(self.layers):
             x = layer(x)
-        # Use final norm
-        x = self.norm1(x)
+            if i in self.out_indices:
+                if i != self.out_indices[-1]:
+                    x = self.proj_layers[self.out_indices.index(i)](x)
+                res.append(x)
 
-        return (x, mask, ids_restore)
+        res = torch.stack(res).mean(0)
+        # Use final norm
+        res = self.norm1(res)
+
+        return (res, mask, ids_restore)
