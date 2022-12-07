@@ -185,8 +185,10 @@ class MAEViT(VisionTransformer):
             x = layer(x)
             if i in self.out_indices:
                 if i != self.out_indices[-1]:
-                    x = self.proj_layers[self.out_indices.index(i)](x)
-                res.append(x)
+                    proj_x = self.proj_layers[self.out_indices.index(i)](x)
+                else:
+                    proj_x = x
+                res.append(proj_x)
 
         res = torch.stack(res).mean(0)
         # Use final norm
