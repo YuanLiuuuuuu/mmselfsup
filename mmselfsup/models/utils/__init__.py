@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from .clip import build_clip_model
+from .dall_e import Encoder
 from .data_preprocessor import (CAEDataPreprocessor,
                                 RelativeLocDataPreprocessor,
                                 RotationPredDataPreprocessor,
@@ -13,10 +14,9 @@ from .multi_prototypes import MultiPrototypes
 from .position_embedding import build_2d_sincos_position_embedding
 from .sobel import Sobel
 from .transformer_blocks import (CAETransformerRegressorLayer,
-                                 MultiheadAttention, TransformerEncoderLayer,
-                                 PromptTransformerEncoderLayer)
-from .clip import build_clip_model
-
+                                 MultiheadAttention,
+                                 PromptTransformerEncoderLayer,
+                                 TransformerEncoderLayer)
 from .vector_quantizer import NormEMAVectorQuantizer
 
 try:
