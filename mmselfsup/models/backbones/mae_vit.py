@@ -2,6 +2,7 @@
 from typing import List, Optional, Sequence, Tuple, Union
 
 import torch
+import torch.nn.functional as F
 from mmcls.models import VisionTransformer
 
 from mmselfsup.registry import MODELS
@@ -88,6 +89,8 @@ class MAEViT(VisionTransformer):
             for _ in range(len(self.out_indices) - 1)
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
+        self.proj_weights = torch.nn.Parameter(
+            torch.ones(len(self.out_indices)).view(-1, 1, 1, 1))
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -190,8 +193,12 @@ class MAEViT(VisionTransformer):
                     proj_x = x
                 res.append(proj_x)
 
-        res = torch.stack(res).mean(0)
+        res = torch.stack(res)
+        proj_weights = F.softmax(self.proj_weights, dim=0)
+        res = res * proj_weights
+        res = res.sum(dim=0)
+
         # Use final norm
         res = self.norm1(res)
 
-        return (res, mask, ids_restore)
+        return (res, mask, ids_restore, proj_weights.view(-1))
