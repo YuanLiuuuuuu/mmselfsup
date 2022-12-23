@@ -30,10 +30,10 @@ class MAEPlus(MAE):
         latent, mask, ids_restore, weights = self.backbone(inputs[0])
         pred = self.neck(latent, ids_restore)
         loss = self.head(pred, low_freq_targets, mask)
-        losses = dict(
-            loss=loss,
-            weight_0=weights[0],
-            weight_1=weights[1],
-            weight_2=weights[2],
-            weight_3=weights[3])
+        weight_params = {
+            f'weight_{i}': weights[i]
+            for i in range(weights.size(0))
+        }
+        losses = dict(loss=loss)
+        losses.update(weight_params)
         return losses
