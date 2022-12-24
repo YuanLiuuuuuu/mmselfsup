@@ -58,6 +58,7 @@ class MAEViT(VisionTransformer):
                  interpolate_mode: str = 'bicubic',
                  patch_cfg: dict = dict(),
                  layer_cfgs: dict = dict(),
+                 weights: Optional[list] = None,
                  mask_ratio: float = 0.75,
                  init_cfg: Optional[Union[List[dict], dict]] = None) -> None:
         super().__init__(
@@ -89,8 +90,13 @@ class MAEViT(VisionTransformer):
             for _ in range(len(self.out_indices) - 1)
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
-        self.proj_weights = torch.nn.Parameter(
-            torch.ones(len(self.out_indices)).view(-1, 1, 1, 1))
+        if weights is None:
+            self.proj_weights = torch.nn.Parameter(
+                torch.ones(len(self.out_indices)).view(-1, 1, 1, 1))
+        else:
+            self.proj_weights = torch.nn.Parameter(
+                torch.tensor(weights).view(-1, 1, 1, 1))
+            self.proj_weights.requires_grad = False
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -192,7 +198,6 @@ class MAEViT(VisionTransformer):
                 else:
                     proj_x = x
                 res.append(proj_x)
-
         res = torch.stack(res)
         proj_weights = F.softmax(self.proj_weights, dim=0)
         res = res * proj_weights
