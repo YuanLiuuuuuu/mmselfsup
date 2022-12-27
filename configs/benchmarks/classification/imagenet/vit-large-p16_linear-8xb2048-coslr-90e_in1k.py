@@ -1,4 +1,4 @@
-_base_ = 'vit-base-p16_linear-8xb2048-coslr-90e_in1k.py'
+_base_ = 'vit-base-p16_linear-8xb2048-coslr-mae-lars-torch-90e_in1k.py'
 # MAE linear probing setting
 
 # model settings
