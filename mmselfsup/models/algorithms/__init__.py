@@ -27,9 +27,5 @@ __all__ = [
     'BaseModel', 'BarlowTwins', 'BEiT', 'BYOL', 'DeepCluster', 'DenseCL',
     'MoCo', 'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimSiam',
     'SwAV', 'MAE', 'MoCoV3', 'SimMIM', 'CAE', 'MaskFeat', 'MILAN', 'EVA',
-<<<<<<< HEAD
-    'MixMIM'
-=======
-    'MAEPlus'
->>>>>>> 72ccc56 ([Feature]: MAE plus)
+    'MixMIM', 'MAEPlus'
 ]
