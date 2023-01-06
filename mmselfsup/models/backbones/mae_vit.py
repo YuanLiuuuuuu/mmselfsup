@@ -56,6 +56,7 @@ class MAEViT(VisionTransformer):
                  final_norm: bool = True,
                  output_cls_token: bool = True,
                  interpolate_mode: str = 'bicubic',
+                 return_weights: bool = True,
                  patch_cfg: dict = dict(),
                  layer_cfgs: dict = dict(),
                  weights: Optional[list] = None,
@@ -97,6 +98,7 @@ class MAEViT(VisionTransformer):
             self.proj_weights = torch.nn.Parameter(
                 torch.tensor(weights).view(-1, 1, 1, 1))
             self.proj_weights.requires_grad = False
+        self.return_weights = return_weights
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -188,7 +190,6 @@ class MAEViT(VisionTransformer):
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
         cls_tokens = cls_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
-
         res = []
         for i, layer in enumerate(self.layers):
             x = layer(x)
@@ -207,4 +208,7 @@ class MAEViT(VisionTransformer):
         # Use final norm
         res = self.norm1(res)
 
-        return (res, mask, ids_restore, proj_weights.view(-1))
+        if self.return_weights:
+            return (res, mask, ids_restore, proj_weights.view(-1))
+        else:
+            return (res, mask, ids_restore)
