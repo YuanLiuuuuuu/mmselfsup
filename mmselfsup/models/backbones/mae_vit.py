@@ -199,7 +199,8 @@ class MAEViT(VisionTransformer):
                     proj_x = x
                 res.append(proj_x)
         res = torch.stack(res)
-        proj_weights = F.softmax(self.proj_weights, dim=0)
+        if self.proj_weights.requires_grad:
+            proj_weights = F.softmax(self.proj_weights, dim=0)
         res = res * proj_weights
         res = res.sum(dim=0)
 
