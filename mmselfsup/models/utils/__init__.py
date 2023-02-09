@@ -1,6 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from .clip import build_clip_model
-from .dall_e import Encoder
 from .data_preprocessor import (CAEDataPreprocessor,
                                 RelativeLocDataPreprocessor,
                                 RotationPredDataPreprocessor,
