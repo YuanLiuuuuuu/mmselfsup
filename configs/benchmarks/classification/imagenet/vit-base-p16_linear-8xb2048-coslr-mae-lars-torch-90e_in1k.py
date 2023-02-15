@@ -2,14 +2,15 @@ _base_ = 'vit-base-p16_linear-8xb2048-coslr-mae-lars-90e_in1k.py'
 
 # dataloaders
 # Use PyTorch Transform
-file_client_args = dict(
-    backend='petrel',
-    path_mapping=dict({
-        './data/imagenet':
-        's3://openmmlab/datasets/classification/imagenet',
-        'data/imagenet':
-        's3://openmmlab/datasets/classification/imagenet'
-    }))
+# file_client_args = dict(
+#     backend='petrel',
+#     path_mapping=dict({
+#         './data/imagenet':
+#         's3://openmmlab/datasets/classification/imagenet',
+#         'data/imagenet':
+#         's3://openmmlab/datasets/classification/imagenet'
+#     }))
+file_client_args = dict(backend='disk')
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(type='mmselfsup.PytorchRandomResizedCrop', size=224, interpolation=3),

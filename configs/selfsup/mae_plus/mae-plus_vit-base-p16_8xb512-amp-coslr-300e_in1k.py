@@ -1,14 +1,15 @@
 _base_ = '../mae/mae_vit-base-p16_8xb512-amp-coslr-300e_in1k.py'
 
 # dataloader settings
-file_client_args = dict(
-    backend='petrel',
-    path_mapping=dict({
-        './data/imagenet':
-        's3://openmmlab/datasets/classification/imagenet',
-        'data/imagenet':
-        's3://openmmlab/datasets/classification/imagenet'
-    }))
+# file_client_args = dict(
+#     backend='petrel',
+#     path_mapping=dict({
+#         './data/imagenet':
+#         's3://openmmlab/datasets/classification/imagenet',
+#         'data/imagenet':
+#         's3://openmmlab/datasets/classification/imagenet'
+#     }))
+file_client_args = dict(backend='disk')
 train_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(type='mmselfsup.PytorchSimpleResizedCrop', size=224),
