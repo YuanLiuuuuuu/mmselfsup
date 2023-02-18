@@ -27,13 +27,14 @@ class MAEPlus(MAE):
         # ids_restore: the same as that in original repo, which is used
         # to recover the original order of tokens in decoder.
         low_freq_targets = self.target_generator(inputs[0])
-        latent, mask, ids_restore, weights = self.backbone(inputs[0])
+        latent, mask, ids_restore, _ = self.backbone(inputs[0])
         pred = self.neck(latent, ids_restore)
-        loss = self.head(pred, low_freq_targets, mask)
-        weight_params = {
-            f'weight_{i}': weights[i]
-            for i in range(weights.size(0))
-        }
-        losses = dict(loss=loss)
-        losses.update(weight_params)
-        return losses
+        return pred, low_freq_targets, mask
+        # loss = self.head(pred, low_freq_targets, mask)
+        # weight_params = {
+        #     f'weight_{i}': weights[i]
+        #     for i in range(weights.size(0))
+        # }
+        # losses = dict(loss=loss)
+        # losses.update(weight_params)
+        # return losses
