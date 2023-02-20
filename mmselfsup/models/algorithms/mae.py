@@ -82,8 +82,13 @@ class MAE(BaseModel):
         """
         # ids_restore: the same as that in original repo, which is used
         # to recover the original order of tokens in decoder.
-        latent, mask, ids_restore = self.backbone(inputs[0])
+        latent, mask, ids_restore, weights = self.backbone(inputs[0])
         pred = self.neck(latent, ids_restore)
         loss = self.head(pred, inputs[0], mask)
+        weight_params = {
+            f'weight_{i}': weights[i]
+            for i in range(weights.size(0))
+        }
         losses = dict(loss=loss)
+        losses.update(weight_params)
         return losses
