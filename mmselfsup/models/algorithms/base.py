@@ -57,7 +57,6 @@ class BaseModel(_BaseModel):
 
         super().__init__(
             init_cfg=init_cfg, data_preprocessor=data_preprocessor)
-
         self.backbone = MODELS.build(backbone)
 
         if neck is not None:
