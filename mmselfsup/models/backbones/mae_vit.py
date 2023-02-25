@@ -91,7 +91,7 @@ class MAEViT(VisionTransformer):
             for _ in range(len(self.out_indices) - 1)
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
-        if weights is None or len(self.out_indices) == 1:
+        if weights is None and len(self.out_indices) > 1:
             self.proj_weights = torch.nn.Parameter(
                 torch.ones(len(self.out_indices)).view(-1, 1, 1, 1))
         else:

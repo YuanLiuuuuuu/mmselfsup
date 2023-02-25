@@ -32,12 +32,17 @@ class EVA(BaseModel):
 
         clip_feature, _ = self.target_generator(inputs[0])
 
-        latent, mask, ids_restore = self.backbone(inputs[0])
+        latent, mask, ids_restore, weights = self.backbone(inputs[0])
 
         pred = self.neck(latent, ids_restore)
 
         clip_feature = clip_feature[:, 1:, :]
         loss = self.head(pred, clip_feature, mask)
 
+        weight_params = {
+            f'weight_{i}': weights[i]
+            for i in range(weights.size(0))
+        }
         losses = dict(loss=loss)
+        losses.update(weight_params)
         return losses
