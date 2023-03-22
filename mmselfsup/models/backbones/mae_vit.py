@@ -79,6 +79,18 @@ class MAEViT(VisionTransformer):
         self.mask_ratio = mask_ratio
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
 
+        self.layer_embeddings = torch.nn.ParameterList()
+        for _ in range(12):
+            self.layer_embeddings.append(
+                torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
+
+        proj_layers = [
+            torch.nn.Linear(self.embed_dims, self.embed_dims)
+            for _ in range(12)
+        ]
+        self.proj_layers = torch.nn.ModuleList(proj_layers)
+        self.scale = self.embed_dims**-.5  # used in gather all layers
+
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
         super().init_weights()
@@ -92,6 +104,9 @@ class MAEViT(VisionTransformer):
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         torch.nn.init.normal_(self.cls_token, std=.02)
+
+        for layer in self.layer_embeddings:
+            torch.nn.init.normal_(layer, std=.02)
 
     def random_masking(
         self,
@@ -170,8 +185,20 @@ class MAEViT(VisionTransformer):
         cls_tokens = cls_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
 
-        for _, layer in enumerate(self.layers):
-            x = layer(x)
+        all_layers = []
+        for i, layer in enumerate(self.layers):
+            x = layer(x)  # B x L x C
+            cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
+            x_ = x + cur_layer_embedding
+            x_ = self.proj_layers[i](x_)
+            all_layers.append(x_)
+
+        query = all_layers[-1] * self.scale
+        key = torch.cat(all_layers, dim=1)
+        value = torch.cat(all_layers, dim=1)
+        attn = torch.einsum('bld,bkd->blk', query, key).softmax(dim=-1)
+        x = torch.einsum('blk,bkd->bld', attn, value)
+
         # Use final norm
         x = self.norm1(x)
 
