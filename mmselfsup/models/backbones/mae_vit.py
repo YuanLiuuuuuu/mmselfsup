@@ -79,10 +79,10 @@ class MAEViT(VisionTransformer):
         self.mask_ratio = mask_ratio
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
 
-        self.layer_embeddings = torch.nn.ParameterList()
-        for _ in range(12):
-            self.layer_embeddings.append(
-                torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
+        # self.layer_embeddings = torch.nn.ParameterList()
+        # for _ in range(12):
+        #     self.layer_embeddings.append(
+        #         torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
 
         proj_layers = [
             torch.nn.Linear(self.embed_dims, self.embed_dims)
@@ -191,8 +191,9 @@ class MAEViT(VisionTransformer):
         all_layers = []
         for i, layer in enumerate(self.layers):
             x = layer(x)  # B x L x C
-            cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
-            x_ = x + cur_layer_embedding
+            # cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
+            # x_ = x + cur_layer_embedding
+            x_ = x
             x_ = self.proj_layers[i](x_)
             all_layers.append(x_)
 
