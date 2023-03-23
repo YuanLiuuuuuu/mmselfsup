@@ -91,6 +91,7 @@ class MAEViT(VisionTransformer):
         self.proj_layers = torch.nn.ModuleList(proj_layers)
         self.scale = self.embed_dims**-.5  # used in gather all layers
         self.attn_proj = torch.nn.Linear(self.embed_dims, self.embed_dims)
+        self.num_heads = self.arch_settings['num_heads']
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -194,11 +195,26 @@ class MAEViT(VisionTransformer):
             x_ = self.proj_layers[i](x_)
             all_layers.append(x_)
 
-        query = all_layers[-1] * self.scale
+        query = all_layers[-1]
         key = torch.cat(all_layers, dim=1)
         value = torch.cat(all_layers, dim=1)
-        attn = torch.einsum('bld,bkd->blk', query, key).softmax(dim=-1)
-        x = torch.einsum('blk,bkd->bld', attn, value)
+
+        # multi-head
+        query = query.reshape(B, -1, self.num_heads,
+                              self.embed_dims // self.num_heads).permute(
+                                  0, 2, 1, 3)
+        key = key.reshape(B, -1, self.num_heads,
+                          self.embed_dims // self.num_heads).permute(
+                              0, 2, 1, 3)
+        value = value.reshape(B, -1, self.num_heads,
+                              self.embed_dims // self.num_heads).permute(
+                                  0, 2, 1, 3)
+
+        query = query * self.scale
+        attn = torch.einsum('bhld,bhkd->bhlk', query, key).softmax(dim=-1)
+        x = torch.einsum('bhlk,bhkd->bhld', attn,
+                         value).transpose(1,
+                                          2).reshape(B, -1, self.embed_dims)
         x = self.attn_proj(x)
 
         # Use final norm
