@@ -108,8 +108,8 @@ class MAEViT(VisionTransformer):
 
         torch.nn.init.normal_(self.cls_token, std=.02)
 
-        for layer in self.layer_embeddings:
-            torch.nn.init.normal_(layer, std=.02)
+        # for layer in self.layer_embeddings:
+        #     torch.nn.init.normal_(layer, std=.02)
 
     def random_masking(
         self,
