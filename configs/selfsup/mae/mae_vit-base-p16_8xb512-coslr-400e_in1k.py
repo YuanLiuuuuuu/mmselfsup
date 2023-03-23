@@ -50,5 +50,5 @@ default_hooks = dict(
     checkpoint=dict(type='CheckpointHook', interval=1, max_keep_ckpts=3))
 
 # randomness
-randomness = dict(seed=0, diff_rank_seed=True)
+randomness = dict(seed=2, diff_rank_seed=True)
 resume = True
