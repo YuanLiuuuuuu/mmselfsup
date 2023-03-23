@@ -90,6 +90,7 @@ class MAEViT(VisionTransformer):
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
         self.scale = self.embed_dims**-.5  # used in gather all layers
+        self.attn_proj = torch.nn.Linear(self.embed_dims, self.embed_dims)
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -198,6 +199,7 @@ class MAEViT(VisionTransformer):
         value = torch.cat(all_layers, dim=1)
         attn = torch.einsum('bld,bkd->blk', query, key).softmax(dim=-1)
         x = torch.einsum('blk,bkd->bld', attn, value)
+        x = self.attn_proj(x)
 
         # Use final norm
         x = self.norm1(x)
