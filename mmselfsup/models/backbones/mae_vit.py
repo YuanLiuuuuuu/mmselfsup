@@ -89,9 +89,10 @@ class MAEViT(VisionTransformer):
             for _ in range(12)
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
-        self.scale = self.embed_dims**-.5  # used in gather all layers
         self.attn_proj = torch.nn.Linear(self.embed_dims, self.embed_dims)
         self.num_heads = self.arch_settings['num_heads']
+        self.head_dim = self.embed_dims // self.num_heads
+        self.scale = self.head_dim**-.5  # used in gather all layers
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
