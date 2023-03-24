@@ -58,6 +58,7 @@ class MAEViT(VisionTransformer):
                  interpolate_mode: str = 'bicubic',
                  patch_cfg: dict = dict(),
                  layer_cfgs: dict = dict(),
+                 qk_scale: Optional[float] = None,
                  mask_ratio: float = 0.75,
                  init_cfg: Optional[Union[List[dict], dict]] = None) -> None:
         super().__init__(
@@ -91,6 +92,7 @@ class MAEViT(VisionTransformer):
             attn_drop=0.0,
             proj_drop=0.0,
             qkv_bias=True,
+            qk_scale=qk_scale,
         )
 
     def init_weights(self) -> None:
