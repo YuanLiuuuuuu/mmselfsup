@@ -6,6 +6,7 @@ from mmcls.models import VisionTransformer
 
 from mmselfsup.registry import MODELS
 from ..utils import build_2d_sincos_position_embedding
+from ..utils.transformer_blocks import CrossMultiheadAttention
 
 
 @MODELS.register_module()
@@ -79,20 +80,18 @@ class MAEViT(VisionTransformer):
         self.mask_ratio = mask_ratio
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
 
-        # self.layer_embeddings = torch.nn.ParameterList()
-        # for _ in range(12):
-        #     self.layer_embeddings.append(
-        #         torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
+        self.layer_embeddings = torch.nn.ParameterList()
+        for _ in range(12):
+            self.layer_embeddings.append(
+                torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
 
-        proj_layers = [
-            torch.nn.Linear(self.embed_dims, self.embed_dims)
-            for _ in range(12)
-        ]
-        self.proj_layers = torch.nn.ModuleList(proj_layers)
-        self.attn_proj = torch.nn.Linear(self.embed_dims, self.embed_dims)
-        self.num_heads = self.arch_settings['num_heads']
-        self.head_dim = self.embed_dims // self.num_heads
-        self.scale = self.head_dim**-.5  # used in gather all layers
+        self.layer_gather = CrossMultiheadAttention(
+            embed_dims=self.embed_dims,
+            num_heads=self.arch_settings['num_heads'],
+            attn_drop=0.0,
+            proj_drop=0.0,
+            qkv_bias=True,
+        )
 
     def init_weights(self) -> None:
         """Initialize position embedding, patch embedding and cls token."""
@@ -191,33 +190,14 @@ class MAEViT(VisionTransformer):
         all_layers = []
         for i, layer in enumerate(self.layers):
             x = layer(x)  # B x L x C
-            # cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
-            # x_ = x + cur_layer_embedding
-            x_ = x
-            x_ = self.proj_layers[i](x_)
+            cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
+            x_ = x + cur_layer_embedding
             all_layers.append(x_)
 
         query = all_layers[-1]
         key = torch.cat(all_layers, dim=1)
         value = torch.cat(all_layers, dim=1)
-
-        # multi-head
-        query = query.reshape(B, -1, self.num_heads,
-                              self.embed_dims // self.num_heads).permute(
-                                  0, 2, 1, 3)
-        key = key.reshape(B, -1, self.num_heads,
-                          self.embed_dims // self.num_heads).permute(
-                              0, 2, 1, 3)
-        value = value.reshape(B, -1, self.num_heads,
-                              self.embed_dims // self.num_heads).permute(
-                                  0, 2, 1, 3)
-
-        query = query * self.scale
-        attn = torch.einsum('bhld,bhkd->bhlk', query, key).softmax(dim=-1)
-        x = torch.einsum('bhlk,bhkd->bhld', attn,
-                         value).transpose(1,
-                                          2).reshape(B, -1, self.embed_dims)
-        x = self.attn_proj(x)
+        x = self.layer_gather(query, key, value)
 
         # Use final norm
         x = self.norm1(x)
