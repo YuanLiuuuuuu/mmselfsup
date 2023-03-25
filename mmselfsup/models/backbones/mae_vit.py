@@ -86,6 +86,12 @@ class MAEViT(VisionTransformer):
             self.layer_embeddings.append(
                 torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
 
+        proj_layers = [
+            torch.nn.Linear(self.embed_dims, self.embed_dims)
+            for _ in range(11)
+        ]
+        self.proj_layers = torch.nn.ModuleList(proj_layers)
+
         self.layer_gather = CrossMultiheadAttention(
             embed_dims=self.embed_dims,
             num_heads=self.arch_settings['num_heads'],
@@ -194,7 +200,8 @@ class MAEViT(VisionTransformer):
             x = layer(x)  # B x L x C
             cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
             if i != len(self.layers) - 1:
-                x_ = x.detach() + cur_layer_embedding
+                x_ = self.proj_layers[i](x)
+                x_ = x_ + cur_layer_embedding
             else:
                 x_ = x + cur_layer_embedding
             all_layers.append(x_)
