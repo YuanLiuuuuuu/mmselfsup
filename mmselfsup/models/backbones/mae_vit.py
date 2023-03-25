@@ -193,7 +193,10 @@ class MAEViT(VisionTransformer):
         for i, layer in enumerate(self.layers):
             x = layer(x)  # B x L x C
             cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
-            x_ = x + cur_layer_embedding
+            if i != len(self.layers) - 1:
+                x_ = x.detach() + cur_layer_embedding
+            else:
+                x_ = x + cur_layer_embedding
             all_layers.append(x_)
 
         query = all_layers[-1]
