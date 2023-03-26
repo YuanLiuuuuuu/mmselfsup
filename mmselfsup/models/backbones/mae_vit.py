@@ -80,15 +80,16 @@ class MAEViT(VisionTransformer):
         self.pos_embed.requires_grad = False
         self.mask_ratio = mask_ratio
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
+        self.out_indices = out_indices
 
         self.layer_embeddings = torch.nn.ParameterList()
-        for _ in range(12):
+        for _ in range(len(self.out_indices)):
             self.layer_embeddings.append(
                 torch.nn.Parameter(torch.zeros(1, 1, self.embed_dims)))
 
         proj_layers = [
             torch.nn.Linear(self.embed_dims, self.embed_dims)
-            for _ in range(11)
+            for _ in range(len(self.out_indices) - 1)
         ]
         self.proj_layers = torch.nn.ModuleList(proj_layers)
 
@@ -198,13 +199,15 @@ class MAEViT(VisionTransformer):
         all_layers = []
         for i, layer in enumerate(self.layers):
             x = layer(x)  # B x L x C
-            cur_layer_embedding = self.layer_embeddings[i].expand(B, -1, -1)
-            if i != len(self.layers) - 1:
-                x_ = self.proj_layers[i](x)
-                x_ = x_ + cur_layer_embedding
-            else:
-                x_ = x + cur_layer_embedding
-            all_layers.append(x_)
+            if i in self.out_indices:
+                cur_layer_embedding = self.layer_embeddings[
+                    self.out_indices.index(i)].expand(B, -1, -1)
+                if i != len(self.layers) - 1:
+                    x_ = self.proj_layers[self.out_indices.index(i)](x)
+                    x_ = x_ + cur_layer_embedding
+                else:
+                    x_ = x + cur_layer_embedding
+                all_layers.append(x_)
 
         query = all_layers[-1]
         key = torch.cat(all_layers, dim=1)
