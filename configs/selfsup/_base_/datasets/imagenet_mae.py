@@ -5,12 +5,11 @@ data_root = 'data/imagenet/'
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmcls.ToPIL', to_rgb=True),
-    dict(type='mmcls.torchvision/Resize', size=224),
     dict(
-        type='mmcls.torchvision/RandomCrop',
+        type='mmcls.torchvision/RandomResizedCrop',
         size=224,
-        padding=4,
-        padding_mode='reflect'),
+        scale=(0.2, 1.0),
+        interpolation=3),
     dict(type='mmcls.torchvision/RandomHorizontalFlip', p=0.5),
     dict(type='mmcls.ToNumpy', to_rgb=True),
     dict(type='PackSelfSupInputs', meta_keys=['img_path'])
